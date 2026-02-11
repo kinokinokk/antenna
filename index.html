@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📡ANTENNA📡</title>
+  
+<style>
+:root{
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#222;
+  --muted:#666;
+  --border:#e5e5e5;
+  --shadow:0 2px 8px rgba(0,0,0,0.08);
+  --primary:#1e88e5;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.header{
+  padding:20px 16px 8px;
+  text-align:center;
+}
+
+.app-title{
+  margin:0;
+  font-size:28px;
+  letter-spacing:0.5px;
+}
+
+.subtitle{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.container{
+  width:min(980px, 100%);
+  margin:0 auto;
+  padding:12px 12px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+
+.card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.card-title{
+  margin:0;
+  font-size:18px;
+}
+
+.card-subtitle{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding-bottom:8px;
+  -webkit-overflow-scrolling:touch;
+}
+
+.tab{
+  border:1px solid var(--border);
+  background:#fafafa;
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  white-space:nowrap;
+  font-size:14px;
+}
+
+.tab[aria-selected="true"]{
+  border-color:rgba(30,136,229,0.35);
+  background:rgba(30,136,229,0.10);
+}
+
+.tab-panel{
+  border-top:1px solid var(--border);
+  padding-top:12px;
+}
+
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.panel-title{
+  font-weight:700;
+  font-size:16px;
+}
+
+.textarea{
+  width:100%;
+  resize:vertical;
+  min-height:140px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  font-size:15px;
+  line-height:1.5;
+  outline:none;
+}
+
+.textarea:focus{
+  border-color:rgba(30,136,229,0.55);
+  box-shadow:0 0 0 3px rgba(30,136,229,0.15);
+}
+
+.btn{
+  border:none;
+  background:var(--primary);
+  color:white;
+  padding:10px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.btn:active{ transform: translateY(1px); }
+
+.btn.ghost{
+  background:#f3f3f3;
+  color:#222;
+  border:1px solid var(--border);
+}
+
+.hint{
+  margin-top:8px;
+  min-height:18px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.blocks{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.block{
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px;
+  background:#fcfcfc;
+}
+
+.block-head{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.title-input{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  outline:none;
+}
+
+.title-input:focus{
+  border-color:rgba(30,136,229,0.55);
+  box-shadow:0 0 0 3px rgba(30,136,229,0.15);
+}
+
+.block-actions{
+  display:flex;
+  gap:8px;
+  flex-shrink:0;
+}
+
+.footer{
+  text-align:center;
+  color:var(--muted);
+  padding:6px 12px 18px;
+}
+
+@media (max-width: 520px){
+  .app-title{ font-size:26px; }
+  .card{ padding:12px; }
+  .tab{ padding:10px 12px; }
+  .textarea{ font-size:16px; } /* iOSでの拡大防止 */
+}
+
+</style>
+</head>
+<body>
+  <header class="header">
+    <h1 class="app-title">📡ANTENNA📡</h1>
+    <p class="subtitle">曜日タブ＋カスタムブロック。編集は自動保存、ワンタップでコピー。</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="tabs" id="dayTabs" role="tablist" aria-label="曜日タブ"></div>
+
+      <div class="tab-panel" id="dayPanel" role="tabpanel" aria-label="曜日の内容">
+        <div class="panel-head">
+          <div class="panel-title" id="panelTitle">—</div>
+          <button class="btn" id="copyDayBtn" type="button">コピー</button>
+        </div>
+        <textarea id="dayTextarea" class="textarea" rows="8" placeholder="ここに文面を入力"></textarea>
+        <div class="hint" id="copyHint" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2 class="card-title">カスタムブロック</h2>
+        <button class="btn" id="addBlockBtn" type="button">＋ 追加</button>
+      </div>
+      <p class="card-subtitle">曜日以外の定型文を、好きなタイトルで追加・削除できます。</p>
+
+      <div id="customBlocks" class="blocks"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>保存先：この端末のブラウザ（localStorage）</small>
+  </footer>
+
+  <script>
+// 📡ANTENNA📡
+// - 曜日タブ（今日を自動選択）
+// - カスタムブロック（追加/削除/コピー）
+// - localStorageに自動保存
+
+const DAY_KEYS = ["mon","tue","wed","thu","fri","sat","sun"];
+const DAY_LABELS = {
+  mon: "月曜日",
+  tue: "火曜日",
+  wed: "水曜日",
+  thu: "木曜日",
+  fri: "金曜日",
+  sat: "土曜日",
+  sun: "日曜日",
+};
+
+const STORAGE = {
+  activeDay: "antenna_activeDay",
+  dayText: (k) => `antenna_day_${k}`,
+  customBlocks: "antenna_customBlocks",
+};
+
+function todayKey(){
+  const d = new Date().getDay(); // 0=Sun ... 6=Sat
+  const map = {0:"sun",1:"mon",2:"tue",3:"wed",4:"thu",5:"fri",6:"sat"};
+  return map[d] || "mon";
+}
+
+function safeParse(json, fallback){
+  try{
+    const v = JSON.parse(json);
+    return (v === null || v === undefined) ? fallback : v;
+  }catch{ return fallback; }
+}
+
+function setHint(text){
+  const el = document.getElementById("copyHint");
+  if(!el) return;
+  el.textContent = text;
+  if(text){
+    window.clearTimeout(setHint._t);
+    setHint._t = window.setTimeout(() => (el.textContent = ""), 1200);
+  }
+}
+
+async function copyToClipboard(text){
+  if(!text) throw new Error("empty");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  // fallback
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+}
+
+// ---------- Day tabs ----------
+let activeDay = "mon";
+
+function loadDay(dayKey){
+  const titleEl = document.getElementById("panelTitle");
+  const textarea = document.getElementById("dayTextarea");
+  titleEl.textContent = DAY_LABELS[dayKey] || dayKey;
+  textarea.value = localStorage.getItem(STORAGE.dayText(dayKey)) || "";
+}
+
+function saveDay(dayKey, text){
+  localStorage.setItem(STORAGE.dayText(dayKey), text);
+}
+
+function setActiveDay(dayKey){
+  activeDay = dayKey;
+  localStorage.setItem(STORAGE.activeDay, dayKey);
+  // update tab state
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.setAttribute("aria-selected", String(btn.dataset.day === dayKey));
+  });
+  loadDay(dayKey);
+}
+
+function renderDayTabs(){
+  const tabs = document.getElementById("dayTabs");
+  tabs.innerHTML = "";
+  DAY_KEYS.forEach(k => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tab";
+    b.dataset.day = k;
+    b.role = "tab";
+    b.textContent = DAY_LABELS[k];
+    b.setAttribute("aria-selected", "false");
+    b.addEventListener("click", () => setActiveDay(k));
+    tabs.appendChild(b);
+  });
+}
+
+// ---------- Custom blocks ----------
+function genId(){
+  return `b_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function loadBlocks(){
+  return safeParse(localStorage.getItem(STORAGE.customBlocks), []);
+}
+
+function saveBlocks(blocks){
+  localStorage.setItem(STORAGE.customBlocks, JSON.stringify(blocks));
+}
+
+function renderBlocks(){
+  const root = document.getElementById("customBlocks");
+  const blocks = loadBlocks();
+  root.innerHTML = "";
+
+  if(blocks.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "hint";
+    empty.textContent = "まだカスタムブロックはありません。右上の「＋ 追加」から作れます。";
+    root.appendChild(empty);
+    return;
+  }
+
+  blocks.forEach((blk) => {
+    const wrap = document.createElement("div");
+    wrap.className = "block";
+    wrap.dataset.id = blk.id;
+
+    const head = document.createElement("div");
+    head.className = "block-head";
+
+    const title = document.createElement("input");
+    title.className = "title-input";
+    title.type = "text";
+    title.value = blk.title || "";
+    title.placeholder = "タイトル";
+
+    const actions = document.createElement("div");
+    actions.className = "block-actions";
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "btn";
+    copyBtn.textContent = "コピー";
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "btn ghost";
+    delBtn.textContent = "削除";
+
+    actions.appendChild(copyBtn);
+    actions.appendChild(delBtn);
+    head.appendChild(title);
+    head.appendChild(actions);
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "textarea";
+    textarea.rows = 6;
+    textarea.placeholder = "ここに文面を入力";
+    textarea.value = blk.text || "";
+
+    // events
+    title.addEventListener("input", () => {
+      const all = loadBlocks();
+      const idx = all.findIndex(x => x.id === blk.id);
+      if(idx >= 0){
+        all[idx].title = title.value;
+        saveBlocks(all);
+      }
+    });
+
+    textarea.addEventListener("input", () => {
+      const all = loadBlocks();
+      const idx = all.findIndex(x => x.id === blk.id);
+      if(idx >= 0){
+        all[idx].text = textarea.value;
+        saveBlocks(all);
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try{
+        await copyToClipboard(textarea.value);
+        setHint(`「${title.value || "(無題)"}」をコピーしました`);
+      }catch{
+        setHint("コピーできませんでした");
+      }
+    });
+
+    delBtn.addEventListener("click", () => {
+      const all = loadBlocks().filter(x => x.id !== blk.id);
+      saveBlocks(all);
+      renderBlocks();
+    });
+
+    wrap.appendChild(head);
+    wrap.appendChild(textarea);
+    root.appendChild(wrap);
+  });
+}
+
+function addBlock(){
+  const blocks = loadBlocks();
+  blocks.unshift({ id: genId(), title: "新規ブロック", text: "" });
+  saveBlocks(blocks);
+  renderBlocks();
+}
+
+// ---------- Init ----------
+document.addEventListener("DOMContentLoaded", () => {
+  renderDayTabs();
+
+  // initial active day: last used -> today
+  const last = localStorage.getItem(STORAGE.activeDay);
+  const initial = (last && DAY_LABELS[last]) ? last : todayKey();
+  setActiveDay(initial);
+
+  const dayTa = document.getElementById("dayTextarea");
+  dayTa.addEventListener("input", () => saveDay(activeDay, dayTa.value));
+
+  document.getElementById("copyDayBtn").addEventListener("click", async () => {
+    try{
+      await copyToClipboard(dayTa.value);
+      setHint(`${DAY_LABELS[activeDay]} をコピーしました`);
+    }catch{
+      setHint("コピーできませんでした");
+    }
+  });
+
+  document.getElementById("addBlockBtn").addEventListener("click", addBlock);
+  renderBlocks();
+});
+
+</script>
+</body>
+</html>
